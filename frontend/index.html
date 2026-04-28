@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <main id="authShell" class="auth-shell">
+        <section class="auth-card">
+            <p class="eyebrow">Timetable Generator</p>
+            <h1>Sign in to continue</h1>
+            <p class="hero-copy">Create an account or continue with Google to save and generate timetables.</p>
+
+            <div class="auth-toggle">
+                <button id="showLoginBtn" class="auth-toggle-btn active" type="button">Login</button>
+                <button id="showSignupBtn" class="auth-toggle-btn" type="button">Sign Up</button>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <input id="loginEmail" type="email" placeholder="Email" required>
+                <input id="loginPassword" type="password" placeholder="Password" required>
+                <button class="primary-button auth-submit" type="submit">Sign In</button>
+            </form>
+
+            <form id="signupForm" class="auth-form hidden">
+                <input id="signupName" type="text" placeholder="Full name" required>
+                <input id="signupEmail" type="email" placeholder="Email" required>
+                <input id="signupPassword" type="password" placeholder="Password (min 8 characters)" required>
+                <button class="primary-button auth-submit" type="submit">Create Account</button>
+            </form>
+
+            <div class="auth-divider"><span>or</span></div>
+            <div class="google-auth-block">
+                <p id="googleAuthLabel" class="google-auth-label">Sign in with Google</p>
+                <div id="googleButtonWrap" class="google-wrap"></div>
+            </div>
+            <p id="authStatus" class="status-text"></p>
+        </section>
+    </main>
+
+    <main id="appShell" class="app-shell hidden">
+        <section class="hero">
+            <p class="eyebrow">College Timetable Planner</p>
+            <h1>Build the best timetable for your semester</h1>
+            <p class="hero-copy">
+                Move step by step: paste the timetable data, choose your courses, set preferences,
+                and review the best timetable options.
+            </p>
+            <div class="hero-meta">
+                <div class="creator-note">
+                    <p>Created by Goverdhan T M</p>
+                    <p>B.E. ECE</p>
+                    <p>2025-2029</p>
+                </div>
+                <div class="user-chip">
+                    <span id="currentUserName">Signed in</span>
+                    <button id="logoutBtn" class="secondary-button logout-button" type="button">Logout</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="stepper panel">
+            <div class="step-indicator active" data-step-indicator="1">
+                <span>1</span>
+                <p>Paste Data</p>
+            </div>
+            <div class="step-indicator" data-step-indicator="2">
+                <span>2</span>
+                <p>Select Courses</p>
+            </div>
+            <div class="step-indicator" data-step-indicator="3">
+                <span>3</span>
+                <p>Preferences</p>
+            </div>
+            <div class="step-indicator" data-step-indicator="4">
+                <span>4</span>
+                <p>Results</p>
+            </div>
+        </section>
+
+        <section class="panel step-panel active" data-step-panel="1">
+            <div class="section-heading">
+                <h2>Step 1. Paste Timetable Data</h2>
+                <p>Copy the raw timetable text from your portal and load it into the planner.</p>
+            </div>
+
+            <textarea id="timetableInput" placeholder="Paste timetable text here..."></textarea>
+
+            <div class="action-row">
+                <button class="primary-button" id="loadCoursesBtn" type="button">Load Courses</button>
+                <span id="loadStatus" class="status-text"></span>
+            </div>
+        </section>
+
+        <section class="panel step-panel" data-step-panel="2">
+            <div class="section-heading">
+                <h2>Step 2. Select Courses</h2>
+                <p>Pick the courses you want included in the generated timetable.</p>
+            </div>
+
+            <div class="course-toolbar">
+                <input id="courseSearch" type="text" placeholder="Search courses...">
+                <div class="toolbar-actions">
+                    <button class="secondary-button" id="selectAllCoursesBtn" type="button">Select All</button>
+                    <button class="secondary-button" id="clearCoursesBtn" type="button">Select None</button>
+                </div>
+            </div>
+
+            <div id="courseList" class="course-grid">
+                <p class="empty-state">Courses will appear here after you load the timetable text.</p>
+            </div>
+
+            <div class="action-row split-actions">
+                <button class="secondary-button" type="button" data-go-step="1">Back</button>
+                <button class="primary-button" id="toPreferencesBtn" type="button">Continue To Preferences</button>
+            </div>
+        </section>
+
+        <section class="panel step-panel" data-step-panel="3">
+            <div class="section-heading">
+                <h2>Step 3. Choose Preferences</h2>
+                <p>Choose the days, slots, and faculty you prefer, then rank what matters most.</p>
+            </div>
+
+            <div class="constraint-grid">
+                <div class="constraint-card">
+                    <h3>Days You Want Off</h3>
+                    <div id="daysOffList" class="day-grid"></div>
+                </div>
+
+                <div class="constraint-card">
+                    <h3>Time Slots To Avoid</h3>
+                    <div id="avoidSlotChips" class="chip-list">
+                        <p class="empty-state compact-empty">Load the timetable text to see available time slot boxes.</p>
+                    </div>
+                    <p class="field-help">Pick the slots you want to avoid. Selected boxes will be highlighted.</p>
+                </div>
+            </div>
+
+            <div class="constraint-card faculty-card">
+                <h3>Preferred Faculty</h3>
+                <p class="field-help">Pick faculty from the available boxes for each selected course.</p>
+                <div id="facultyPreferences" class="faculty-list">
+                    <p class="empty-state">Select one or more courses to add faculty preferences.</p>
+                </div>
+            </div>
+
+            <div class="constraint-card">
+                <h3>What Should Matter Most?</h3>
+                <p class="field-help">Rank the categories from most important to least important.</p>
+                <div class="priority-grid">
+                    <label>
+                        <span>Priority 1</span>
+                        <select id="priority1"></select>
+                    </label>
+                    <label>
+                        <span>Priority 2</span>
+                        <select id="priority2"></select>
+                    </label>
+                    <label>
+                        <span>Priority 3</span>
+                        <select id="priority3"></select>
+                    </label>
+                    <label>
+                        <span>Priority 4</span>
+                        <select id="priority4"></select>
+                    </label>
+                </div>
+            </div>
+
+            <div class="action-row split-actions">
+                <button class="secondary-button" type="button" data-go-step="2">Back</button>
+                <button class="primary-button" id="generateBtn" type="button">Generate Timetables</button>
+                <span id="generateStatus" class="status-text"></span>
+            </div>
+        </section>
+
+        <section class="panel step-panel" data-step-panel="4">
+            <div class="section-heading">
+                <h2>Step 4. Results</h2>
+                <p>Review ranked timetable options and see which preferences could or could not be achieved.</p>
+            </div>
+
+            <div id="resultSummary" class="result-summary">
+                <p class="empty-state">Generated timetable options will appear here.</p>
+            </div>
+
+            <div id="resultTabs" class="result-tabs"></div>
+
+            <div id="results" class="results-list">
+                <p class="empty-state">Generate timetables to see the weekly comparison view.</p>
+            </div>
+
+            <div class="action-row split-actions">
+                <button class="secondary-button" type="button" data-go-step="3">Back</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
